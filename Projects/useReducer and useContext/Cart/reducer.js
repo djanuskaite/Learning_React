@@ -1,0 +1,87 @@
+// state - current state before the update
+// action - what wer are trying to do
+const reducer = (state, action) => {
+    if (action.type === 'CLEAR_CART') {
+        // when I clean the cart, return an empty array
+        return { ...state, cart: [] }
+    }
+    if (action.type === 'REMOVE') {
+        return {
+            ...state,
+            cart: state.cart.filter((cartItem) => cartItem.id !== action.payload),
+        }
+    }
+    // if the cart id does not match the id Im passing then that item will be returned (if not it will be removed)
+
+    if (action.type === 'INCREASE') {
+        let tempCart = state.cart.map((cartItem) => {
+            // if id matches then increase
+            if (cartItem.id === action.payload) {
+                return { ...cartItem, amount: cartItem.amount + 1 }
+            }
+            return cartItem
+        })
+        return { ...state, cart: tempCart }
+    }
+    if (action.type === 'DECREASE') {
+        let tempCart = state.cart.map((cartItem) => {
+            // if id matches then increase
+            if (cartItem.id === action.payload) {
+                return { ...cartItem, amount: cartItem.amount - 1 }
+            }
+            return cartItem
+            // when it is below 0, clear item from the cart
+        })
+            .filter((cartItem) => cartItem.amount !== 0)
+        return { ...state, cart: tempCart }
+    }
+
+    if (action.type === 'GET_TOTALS') {
+        // cartItem - each and every item
+        // cartTotal - what we return
+        let { total, amount } = state.cart.reduce((cartTotal, cartItem) => {
+            const { price, amount } = cartItem
+            //total sum
+            const itemTotal = price * amount
+            // whatever is the value just add the amount property value // cart quantity
+            cartTotal.total += itemTotal
+            cartTotal.amount += amount
+            return cartTotal
+        },
+            {
+                total: 0,
+                amount: 0,
+            }
+        )
+        total = parseFloat(total.toFixed(2))
+
+        // to avoid getting weird numbers
+        return { ...state, total, amount }
+    }
+    if (action.type === 'LOADING') {
+        return { ...state, loading: true }
+    }
+    if (action.type === 'DISPLAY_ITEMS') {
+        return { ...state, cart: action.payload, loading: false }
+    }
+    if (action.type === 'TOGGLE_AMOUNT') {
+        let tempCart = state.cart
+            .map((cartItem) => {
+                // if id matches it will return new item
+                if (cartItem.id === action.payload.id) {
+                    if (action.payload.type === 'inc') {
+                        return { ...cartItem, amount: cartItem.amount + 1 }
+                    }
+                    if (action.payload.type === 'dec') {
+                        return { ...cartItem, amount: cartItem.amount - 1 }
+                    }
+                }
+                return cartItem
+            })
+            .filter((cartItem) => cartItem.amount !== 0)
+        return { ...state, cart: tempCart }
+    }
+    throw new Error('no matching action type')
+}
+
+export default reducer
