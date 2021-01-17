@@ -1,3 +1,4 @@
+// useful when passing through 1 || 2 levels, otherwise better to use useContext
 import React, { useState } from 'react';
 import {data} from '../../../data';
 // more components
